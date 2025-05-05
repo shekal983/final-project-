@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>Catch the Meatball!</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f0e4d7;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            background-color: #fff;
+            display: block;
+            margin: 0 auto;
+            border: 3px solid #d2691e;
+        }
+        #restartButton {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #d2691e;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: none; /* מוסתר בהתחלה */
+        }
+        #restartButton:hover {
+            background-color: #a0522d;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="400" height="600"></canvas>
+<br>
+<button id="restartButton" onclick="restartGame()">התחל מחדש</button>
+<a href="rom davidovich and daniel hurvitz project.html">קישור לדף הראשי</a>
+</body>
+
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const restartBtn = document.getElementById("restartButton");
+
+    let player = {
+        x: 180,
+        y: 550,
+        width: 40,
+        height: 40,
+        color: "#d2691e",
+        speed: 5
+    };
+
+    let meatball = {
+        x: Math.random() * 360,
+        y: 0,
+        radius: 20,
+        color: "brown",
+        speed: 3
+    };
+
+    let score = 0;
+    let isGameOver = false;
+
+    document.addEventListener("keydown", movePlayer);
+
+    function movePlayer(e) {
+        if (e.key === "ArrowLeft" && player.x > 0) {
+            player.x -= player.speed;
+        }
+        if (e.key === "ArrowRight" && player.x < canvas.width - player.width) {
+            player.x += player.speed;
+        }
+    }
+
+    function drawPlayer() {
+        ctx.fillStyle = player.color;
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
+
+    function drawMeatball() {
+        ctx.beginPath();
+        ctx.arc(meatball.x, meatball.y, meatball.radius, 0, Math.PI * 2);
+        ctx.fillStyle = meatball.color;
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function updateGame() {
+        if (isGameOver) return;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        drawPlayer();
+        drawMeatball();
+
+        meatball.y += meatball.speed;
+
+        if (meatball.y > canvas.height) {
+            isGameOver = true;
+            gameOver();
+        }
+
+        if (
+            meatball.y + meatball.radius > player.y &&
+            meatball.x > player.x &&
+            meatball.x < player.x + player.width
+        ) {
+            score++;
+            resetMeatball();
+        }
+
+        requestAnimationFrame(updateGame);
+    }
+
+    function resetMeatball() {
+        meatball.x = Math.random() * (canvas.width - meatball.radius * 2) + meatball.radius;
+        meatball.y = 0;
+    }
+
+    function gameOver() {
+        alert("המשחק נגמר! הציון שלך: " + score);
+        restartBtn.style.display = "inline-block"; // להציג את כפתור הריסטרט
+    }
+
+    function restartGame() {
+        player.x = 180;
+        score = 0;
+        isGameOver = false;
+        resetMeatball();
+        restartBtn.style.display = "none"; // להסתיר שוב את הכפתור
+        updateGame();
+    }
+
+    updateGame();
+</script>
+
+</html>
